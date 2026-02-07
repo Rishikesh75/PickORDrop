@@ -15,44 +15,21 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.isLoading {
-                    ProgressView("Loading menu…")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if let error = viewModel.errorMessage {
-                    ContentUnavailableView("Something went wrong", systemImage: "exclamationmark.triangle", description: Text(error))
-                } else {
-                    ScrollView {
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                            ForEach(viewModel.products) { product in
-                                ProductCardView(product: product) {
-                                    viewModel.addToCart(product)
-                                }
-                            }
-                        }
-                        .padding()
-                    }
+            OrderTypeSelectionView()
+                .navigationDestination(for: StoreCategory.self) { category in
+                    ShopListScreen(viewModel: viewModel, category: category)
+                        .onDisappear { viewModel.clearCategorySelection() }
                 }
-            }
-            .navigationTitle("PickORDrop")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(destination: CartView(viewModel: CartViewModel(cartService: cartService))) {
-                        Image(systemName: "cart.fill")
-                        if viewModel.cartCount > 0 {
-                            Text("\(viewModel.cartCount)")
-                                .font(.caption2)
-                                .padding(4)
-                                .background(AppTheme.accent)
-                                .clipShape(Circle())
-                                .offset(x: 8, y: -8)
-                        }
-                    }
+                .navigationDestination(for: Shop.self) { shop in
+                    ProductListScreen(viewModel: viewModel, shop: shop)
+                        .onDisappear { viewModel.clearShopSelection() }
                 }
-            }
-            .task {
-                await viewModel.loadProducts()
-            }
         }
     }
+}
+
+#Preview {
+    HomeView(viewModel: HomeViewModel(cartService: CartService()))
+        .environment(CartService())
+        .environment(LocationService())
 }

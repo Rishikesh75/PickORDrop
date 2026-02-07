@@ -12,6 +12,7 @@ struct Product: Identifiable, Hashable {
     let price: Decimal
     let imageName: String?
     let category: String
+    let shopId: UUID
 
     init(
         id: UUID = UUID(),
@@ -19,7 +20,8 @@ struct Product: Identifiable, Hashable {
         description: String,
         price: Decimal,
         imageName: String? = nil,
-        category: String
+        category: String,
+        shopId: UUID
     ) {
         self.id = id
         self.name = name
@@ -27,5 +29,6 @@ struct Product: Identifiable, Hashable {
         self.price = price
         self.imageName = imageName
         self.category = category
+        self.shopId = shopId
     }
 }
